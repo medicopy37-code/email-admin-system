@@ -1,0 +1,47 @@
+const http = require('http');
+
+const data = JSON.stringify({
+    email: 'admin@localhost',
+    password: 'Admin@123456'
+});
+
+const req = http.request('http://localhost:5000/api/admin/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length
+    }
+}, (res) => {
+    let body = '';
+    res.on('data', chunk => body += chunk);
+    res.on('end', () => {
+        const token = JSON.parse(body).token;
+
+        const putData = JSON.stringify({
+            username: 'abhishekrajj77@gmail.com',
+            password: 'Admin@123456',
+            name: 'Abhishek Raj',
+            status: 'inactive'
+        });
+
+        const putReq = http.request('http://localhost:5000/api/admin/users/1', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': putData.length,
+                'Authorization': 'Bearer ' + token
+            }
+        }, (putRes) => {
+            let putBody = '';
+            putRes.on('data', chunk => putBody += chunk);
+            putRes.on('end', () => {
+                console.log('STATUS:', putRes.statusCode);
+                console.log('RESPONSE:', putBody);
+            });
+        });
+        putReq.write(putData);
+        putReq.end();
+    });
+});
+req.write(data);
+req.end();

@@ -1,0 +1,138 @@
+#!/bin/bash
+
+# Backup and Restore Script for Email Admin System
+
+BACKUP_DIR="./backups"
+DB_FILE="./backend/database.sqlite"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+# Function to create backup
+backup() {
+    echo "📦 Creating backup..."
+    
+    mkdir -p $BACKUP_DIR
+    
+    if [ ! -f "$DB_FILE" ]; then
+        echo "❌ Database file not found: $DB_FILE"
+        exit 1
+    fi
+    
+    BACKUP_FILE="$BACKUP_DIR/database_backup_$TIMESTAMP.sqlite"
+    cp $DB_FILE $BACKUP_FILE
+    
+    echo "✓ Backup created: $BACKUP_FILE"
+    echo ""
+    echo "Backup includes:"
+    echo "  - All email accounts (with encrypted passwords)"
+    echo "  - All users"
+    echo "  - All permissions"
+    echo "  - All activity logs"
+    echo ""
+    
+    # List recent backups
+    echo "Recent backups:"
+    ls -lh $BACKUP_DIR | tail -5
+}
+
+# Function to restore backup
+restore() {
+    echo "🔄 Available backups:"
+    echo ""
+    
+    if [ ! -d "$BACKUP_DIR" ]; then
+        echo "❌ No backups found!"
+        exit 1
+    fi
+    
+    ls -lh $BACKUP_DIR
+    echo ""
+    
+    read -p "Enter backup filename to restore: " BACKUP_NAME
+    RESTORE_FILE="$BACKUP_DIR/$BACKUP_NAME"
+    
+    if [ ! -f "$RESTORE_FILE" ]; then
+        echo "❌ Backup file not found: $RESTORE_FILE"
+        exit 1
+    fi
+    
+    read -p "⚠️  This will overwrite current database. Continue? (yes/no): " CONFIRM
+    
+    if [ "$CONFIRM" != "yes" ]; then
+        echo "Restore cancelled."
+        exit 0
+    fi
+    
+    # Create safety backup of current database
+    SAFETY_BACKUP="$BACKUP_DIR/pre_restore_backup_$TIMESTAMP.sqlite"
+    cp $DB_FILE $SAFETY_BACKUP
+    echo "✓ Safety backup created: $SAFETY_BACKUP"
+    
+    # Restore
+    cp $RESTORE_FILE $DB_FILE
+    echo "✓ Database restored from: $RESTORE_FILE"
+    echo ""
+    echo "⚠️  Please restart the backend server for changes to take effect:"
+    echo "   cd backend && npm start"
+}
+
+# Function to export data to JSON
+export_json() {
+    echo "📤 Exporting database to JSON..."
+    
+    if ! command -v sqlite3 &> /dev/null; then
+        echo "❌ sqlite3 command not found!"
+        echo "Install with: sudo apt install sqlite3"
+        exit 1
+    fi
+    
+    EXPORT_FILE="$BACKUP_DIR/export_$TIMESTAMP.json"
+    
+    sqlite3 $DB_FILE <<EOF
+.mode json
+.output $EXPORT_FILE
+SELECT 'email_accounts' as table_name, json_group_array(json_object(
+    'email', email,
+    'provider', provider,
+    'display_name', display_name,
+    'status', status
+)) as data FROM email_accounts
+UNION ALL
+SELECT 'users' as table_name, json_group_array(json_object(
+    'username', username,
+    'name', name,
+    'status', status
+)) as data FROM delegated_users;
+.output stdout
+EOF
+    
+    echo "✓ Data exported to: $EXPORT_FILE"
+}
+
+# Main menu
+case "$1" in
+    backup)
+        backup
+        ;;
+    restore)
+        restore
+        ;;
+    export)
+        export_json
+        ;;
+    *)
+        echo "Email Admin System - Backup & Restore"
+        echo "======================================"
+        echo ""
+        echo "Usage: $0 {backup|restore|export}"
+        echo ""
+        echo "Commands:"
+        echo "  backup  - Create a backup of current database"
+        echo "  restore - Restore from a previous backup"
+        echo "  export  - Export data to JSON format"
+        echo ""
+        echo "Examples:"
+        echo "  $0 backup"
+        echo "  $0 restore"
+        exit 1
+        ;;
+esac

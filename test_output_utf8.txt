@@ -1,0 +1,96 @@
+﻿
+> email-admin-frontend@1.0.0 test
+> react-scripts test
+
+node.exe : (node:3612) 
+[DEP0040] 
+DeprecationWarning: 
+The `punycode` module 
+is deprecated. Please 
+use a userland 
+alternative instead.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ((node:3612) [   
+ DE...native instea    
+d.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+(Use `node 
+--trace-deprecation 
+...` to show where the 
+warning was created)
+FAIL src/App.test.js
+  ├ù renders App 
+component without 
+crashing (121 ms)
+
+  ΓùÅ renders App 
+component without 
+crashing
+
+    TypeError: expect(.
+..).toBeInTheDocument 
+is not a function
+
+    [0m [90m 5 
+|[39m   render([33m<
+[39m[33mApp[39m [33m
+/[39m[33m>[39m)[33m
+;[39m
+     [90m 6 |[39m   
+[36mconst[39m 
+linkElement 
+[33m=[39m screen[33m
+.[39mgetAllByText([35
+m/admin login/i[39m)[
+[35m0[39m][33m;[39m
+    [31m[1m>[22m[39
+m[90m 7 |[39m   expec
+t(linkElement)[33m.[3
+9mtoBeInTheDocument()[
+33m;[39m
+     [90m   |[39m    
+                   
+[31m[1m^[22m[39m
+     [90m 8 |[39m 
+})[33m;[39m
+     [90m 9 |[39m[0m
+
+      at 
+Object.<anonymous> 
+(src/App.test.js:7:23)
+      at TestScheduler.
+scheduleTests (node_mod
+ules/@jest/core/build/T
+estScheduler.js:333:13)
+      at runJest (node_
+modules/@jest/core/buil
+d/runJest.js:404:19)
+      at _run10000 (nod
+e_modules/@jest/core/bu
+ild/cli/index.js:320:7)
+      at runCLI (node_m
+odules/@jest/core/build
+/cli/index.js:173:3)
+
+Test Suites: 1 failed, 
+1 total
+Tests:       1 failed, 
+1 total
+Snapshots:   0 total
+Time:        3.284 s
+Ran all test suites.
